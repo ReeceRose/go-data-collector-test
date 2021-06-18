@@ -21,5 +21,3 @@ Each library should have extensive support for getting basic system information 
 [go-sysinfo](https://github.com/elastic/go-sysinfo)
 
 [gwh](https://github.com/jaypipes/ghw)
-
-[Sysinfo](https://github.com/zcalusic/sysinfo)
