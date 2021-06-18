@@ -4,7 +4,7 @@ Testing various Go packages and their support for collecting system information
 
 ## Purpose
 
-The purpose of this project is to determine what the best library their is to pull system information on a variety of systems. After completing some tests, I will be picking a library which I will be using in an upcoming health monitoring project.
+The purpose of this project is to determine what the best library there is to pull system information on a variety of systems. After completing some tests, I will be picking a library which I will be using in an upcoming health monitoring project.
 
 ## Criteria
 
