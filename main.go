@@ -12,4 +12,7 @@ type DataCollector interface {
 
 func main() {
 	fmt.Println("Go System Information Data Collector Test")
+	var collector DataCollector
+	collector = GoSysInfo{}
+	fmt.Println(collector.HostInfo())
 }
