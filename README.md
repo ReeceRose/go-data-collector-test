@@ -17,5 +17,3 @@ Each library should have extensive support for getting basic system information 
 [gopsutil](https://github.com/shirou/gopsutil)
 
 [go-sysinfo](https://github.com/elastic/go-sysinfo)
-
-[gwh](https://github.com/jaypipes/ghw)
