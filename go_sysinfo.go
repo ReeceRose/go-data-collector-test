@@ -12,28 +12,30 @@ func (g GoSysInfo) HostInfo() HostInfo {
 	if err != nil {
 		panic(err)
 	}
-	os := OS{
-		Type:     info.OS.Type,
-		Family:   info.OS.Family,
-		Name:     info.OS.Name,
-		Version:  info.OS.Version,
-		Major:    info.OS.Major,
-		Minor:    info.OS.Minor,
-		Patch:    info.OS.Patch,
-		Build:    info.OS.Build,
-		Codename: info.OS.Codename,
-		Platform: info.OS.Platform,
-	}
 
 	hostInfo := HostInfo{
-		Architecture:      info.Architecture,
-		BootTime:          info.BootTime,
-		Containerized:     info.Containerized,
-		Hostname:          info.Hostname,
-		IPs:               info.IPs,
-		KernelVersion:     info.KernelVersion,
-		MACs:              info.MACs,
-		OS:                &os,
+		// Users: No support?
+		// Temperatures: No support?
+		// OSInfo: This is OS below
+		Architecture:  info.Architecture,
+		BootTime:      info.BootTime,
+		Containerized: info.Containerized,
+		Hostname:      info.Hostname,
+		IPs:           info.IPs,
+		KernelVersion: info.KernelVersion,
+		MACs:          info.MACs,
+		OS: &OS{
+			Type:     info.OS.Type,
+			Family:   info.OS.Family,
+			Name:     info.OS.Name,
+			Version:  info.OS.Version,
+			Major:    info.OS.Major,
+			Minor:    info.OS.Minor,
+			Patch:    info.OS.Patch,
+			Build:    info.OS.Build,
+			Codename: info.OS.Codename,
+			Platform: info.OS.Platform,
+		},
 		Timezone:          info.Timezone,
 		TimezoneOffsetSec: info.TimezoneOffsetSec,
 		UniqueID:          info.UniqueID,
@@ -42,7 +44,27 @@ func (g GoSysInfo) HostInfo() HostInfo {
 }
 
 func (g GoSysInfo) CPU() CPU {
-	return CPU{}
+	host, err := sysinfo.Host()
+	if err != nil {
+		panic(err)
+	}
+	cpuTime, err := host.CPUTime()
+	if err != nil {
+		panic(err)
+	}
+
+	return CPU{
+		Sysifno: SysInfoCPU{
+			User:    cpuTime.User,
+			System:  cpuTime.System,
+			Idle:    cpuTime.Idle,
+			IOWait:  cpuTime.IOWait,
+			IRQ:     cpuTime.IRQ,
+			Nice:    cpuTime.Nice,
+			SoftIRQ: cpuTime.SoftIRQ,
+			Steal:   cpuTime.Steal,
+		},
+	}
 }
 
 func (g GoSysInfo) Memory() Memory {

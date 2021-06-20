@@ -47,7 +47,50 @@ type Temperature struct {
 	Critical    float64 `json:"sensorCritical"`
 }
 
+type SysInfoCPU struct {
+	// go-sysinfo CPUTimes struct: CPU timing status for a process
+
+	User    time.Duration `json:"user,omitempty"`
+	System  time.Duration `json:"system,omitempty"`
+	Idle    time.Duration `json:"idle,omitempty"`
+	IOWait  time.Duration `json:"iowait,omitempty"`
+	IRQ     time.Duration `json:"irq,omitempty"`
+	Nice    time.Duration `json:"nice,omitempty"`
+	SoftIRQ time.Duration `json:"soft_irq,omitempty"`
+	Steal   time.Duration `json:"steal,omitempty"`
+}
+
 type CPU struct {
+	Sysifno SysInfoCPU `json:"Sysinfo,omitempty"`
+	// gopsutil
+	CPU       string        `json:"cpu"`
+	User      float64       `json:"user"`
+	System    float64       `json:"system"`
+	Idle      float64       `json:"idle"`
+	Nice      float64       `json:"nice"`
+	Iowait    float64       `json:"iowait"`
+	Irq       float64       `json:"irq"`
+	Softirq   float64       `json:"softirq"`
+	Steal     float64       `json:"steal"`
+	Guest     float64       `json:"guest"`
+	GuestNice float64       `json:"guestNice"`
+	InfoStat  []CPUInfoStat `json:"infoStat"`
+}
+
+type CPUInfoStat struct {
+	CPU        int32    `json:"cpu"`
+	VendorID   string   `json:"vendorId"`
+	Family     string   `json:"family"`
+	Model      string   `json:"model"`
+	Stepping   int32    `json:"stepping"`
+	PhysicalID string   `json:"physicalId"`
+	CoreID     string   `json:"coreId"`
+	Cores      int32    `json:"cores"`
+	ModelName  string   `json:"modelName"`
+	Mhz        float64  `json:"mhz"`
+	CacheSize  int32    `json:"cacheSize"`
+	Flags      []string `json:"flags"`
+	Microcode  string   `json:"microcode"`
 }
 
 type Memory struct {
@@ -94,9 +137,17 @@ func main() {
 
 	collector = GoSysInfo{}
 	hostInfo, _ := json.Marshal(collector.HostInfo())
+	cpuInfo, _ := json.Marshal(collector.CPU())
+	fmt.Println("go-sysinfo: HOST INFORMATION")
 	fmt.Println(string(hostInfo))
+	fmt.Println("go-sysinfo: CPU INFORMATION")
+	fmt.Println(string(cpuInfo))
 
 	collector = GoPSUtil{}
 	hostInfo, _ = json.Marshal(collector.HostInfo())
+	cpuInfo, _ = json.Marshal(collector.CPU())
+	fmt.Println("gopsutil: HOST INFORMATION")
 	fmt.Println(string(hostInfo))
+	fmt.Println("gopsutil: CPU INFORMATION")
+	fmt.Println(string(cpuInfo))
 }

@@ -1,6 +1,7 @@
 package main
 
 import (
+	gCPU "github.com/shirou/gopsutil/v3/cpu"
 	gHost "github.com/shirou/gopsutil/v3/host"
 )
 
@@ -65,7 +66,19 @@ func (g GoPSUtil) HostInfo() HostInfo {
 }
 
 func (g GoPSUtil) CPU() CPU {
-	return CPU{}
+	cpuInfo, err := gCPU.Info()
+	if err != nil {
+		panic(err)
+	}
+
+	var cpuInfoStat []CPUInfoStat
+	for _, cpu := range cpuInfo {
+		cpuInfoStat = append(cpuInfoStat, CPUInfoStat(cpu))
+	}
+
+	return CPU{
+		InfoStat: cpuInfoStat,
+	}
 }
 
 func (g GoPSUtil) Memory() Memory {
