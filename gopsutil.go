@@ -3,6 +3,7 @@ package main
 import (
 	gCPU "github.com/shirou/gopsutil/v3/cpu"
 	gHost "github.com/shirou/gopsutil/v3/host"
+	gMem "github.com/shirou/gopsutil/v3/mem"
 )
 
 type GoPSUtil struct {
@@ -82,7 +83,24 @@ func (g GoPSUtil) CPU() CPU {
 }
 
 func (g GoPSUtil) Memory() Memory {
-	return Memory{}
+	virtualMemory, _ := gMem.VirtualMemory()
+	swapMemory, _ := gMem.SwapMemory()
+	return Memory{
+		GoPSUtilMemory: GoPSUtilMemory{
+			GoPSUtilVirtualMemory: GoPSUtilVirtualMemory(*virtualMemory),
+			GoPSUtilSwapMemory: GoPSUtilSwapMemory{ // not sure why GoPSUtilSwapMemory(*swapMemory) isn't working here...
+				Total:       swapMemory.Total,
+				Used:        swapMemory.Used,
+				Free:        swapMemory.Free,
+				UsedPercent: swapMemory.UsedPercent,
+				Sin:         swapMemory.Sin,
+				Sout:        swapMemory.Sout,
+				PgIn:        swapMemory.PgIn,
+				PgFault:     swapMemory.PgFault,
+				PgMajFault:  swapMemory.PgMajFault,
+			},
+		},
+	}
 }
 
 func (g GoPSUtil) Processes() []Process {

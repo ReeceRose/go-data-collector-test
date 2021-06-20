@@ -68,7 +68,17 @@ func (g GoSysInfo) CPU() CPU {
 }
 
 func (g GoSysInfo) Memory() Memory {
-	return Memory{}
+	host, err := sysinfo.Host()
+	if err != nil {
+		panic(err)
+	}
+	memory, err := host.Memory()
+	if err != nil {
+		panic(err)
+	}
+	return Memory{
+		SysInfoMemory: SysInfoMemory(*memory),
+	}
 }
 
 func (g GoSysInfo) Processes() []Process {

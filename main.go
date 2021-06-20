@@ -93,7 +93,75 @@ type CPUInfoStat struct {
 	Microcode  string   `json:"microcode"`
 }
 
+type SysInfoMemory struct {
+	Total        uint64            `json:"total_bytes"`         // Total physical memory.
+	Used         uint64            `json:"used_bytes"`          // Total - Free
+	Available    uint64            `json:"available_bytes"`     // Amount of memory available without swapping.
+	Free         uint64            `json:"free_bytes"`          // Amount of memory not used by the system.
+	VirtualTotal uint64            `json:"virtual_total_bytes"` // Total virtual memory.
+	VirtualUsed  uint64            `json:"virtual_used_bytes"`  // VirtualTotal - VirtualFree
+	VirtualFree  uint64            `json:"virtual_free_bytes"`  // Virtual memory that is not used.
+	Metrics      map[string]uint64 `json:"raw,omitempty"`
+}
+
+type GoPSUtilMemory struct {
+	GoPSUtilVirtualMemory GoPSUtilVirtualMemory `json:"virtualMemory"`
+	GoPSUtilSwapMemory    GoPSUtilSwapMemory    `json:"swapMemory"`
+}
+
+type GoPSUtilVirtualMemory struct {
+	Total          uint64  `json:"total"`
+	Available      uint64  `json:"available"`
+	Used           uint64  `json:"used"`
+	UsedPercent    float64 `json:"usedPercent"`
+	Free           uint64  `json:"free"`
+	Active         uint64  `json:"active"`
+	Inactive       uint64  `json:"inactive"`
+	Wired          uint64  `json:"wired"`
+	Laundry        uint64  `json:"laundry"`
+	Buffers        uint64  `json:"buffers"`
+	Cached         uint64  `json:"cached"`
+	WriteBack      uint64  `json:"writeBack"`
+	Dirty          uint64  `json:"dirty"`
+	WriteBackTmp   uint64  `json:"writeBackTmp"`
+	Shared         uint64  `json:"shared"`
+	Slab           uint64  `json:"slab"`
+	Sreclaimable   uint64  `json:"sreclaimable"`
+	Sunreclaim     uint64  `json:"sunreclaim"`
+	PageTables     uint64  `json:"pageTables"`
+	SwapCached     uint64  `json:"swapCached"`
+	CommitLimit    uint64  `json:"commitLimit"`
+	CommittedAS    uint64  `json:"committedAS"`
+	HighTotal      uint64  `json:"highTotal"`
+	HighFree       uint64  `json:"highFree"`
+	LowTotal       uint64  `json:"lowTotal"`
+	LowFree        uint64  `json:"lowFree"`
+	SwapTotal      uint64  `json:"swapTotal"`
+	SwapFree       uint64  `json:"swapFree"`
+	Mapped         uint64  `json:"mapped"`
+	VmallocTotal   uint64  `json:"vmallocTotal"`
+	VmallocUsed    uint64  `json:"vmallocUsed"`
+	VmallocChunk   uint64  `json:"vmallocChunk"`
+	HugePagesTotal uint64  `json:"hugePagesTotal"`
+	HugePagesFree  uint64  `json:"hugePagesFree"`
+	HugePageSize   uint64  `json:"hugePageSize"`
+}
+
+type GoPSUtilSwapMemory struct {
+	Total       uint64  `json:"total"`
+	Used        uint64  `json:"used"`
+	Free        uint64  `json:"free"`
+	UsedPercent float64 `json:"usedPercent"`
+	Sin         uint64  `json:"sin"`
+	Sout        uint64  `json:"sout"`
+	PgIn        uint64  `json:"pgIn"`
+	PgFault     uint64  `json:"pgFault"`
+	PgMajFault  uint64  `json:"pgMajFault"`
+}
+
 type Memory struct {
+	SysInfoMemory  SysInfoMemory  `json:"sysInfoMemory"`
+	GoPSUtilMemory GoPSUtilMemory `json:"goPSUtilMemory"`
 }
 
 type Process struct {
@@ -138,16 +206,22 @@ func main() {
 	collector = GoSysInfo{}
 	hostInfo, _ := json.Marshal(collector.HostInfo())
 	cpuInfo, _ := json.Marshal(collector.CPU())
+	memoryInfo, _ := json.Marshal(collector.Memory())
 	fmt.Println("go-sysinfo: HOST INFORMATION")
 	fmt.Println(string(hostInfo))
 	fmt.Println("go-sysinfo: CPU INFORMATION")
 	fmt.Println(string(cpuInfo))
+	fmt.Println("go-sysinfo: MEMORY INFORMATION")
+	fmt.Println(string(memoryInfo))
 
 	collector = GoPSUtil{}
 	hostInfo, _ = json.Marshal(collector.HostInfo())
 	cpuInfo, _ = json.Marshal(collector.CPU())
+	memoryInfo, _ = json.Marshal(collector.Memory())
 	fmt.Println("gopsutil: HOST INFORMATION")
 	fmt.Println(string(hostInfo))
 	fmt.Println("gopsutil: CPU INFORMATION")
 	fmt.Println(string(cpuInfo))
+	fmt.Println("gopsutil: MEMORy INFORMATION")
+	fmt.Println(string(memoryInfo))
 }
