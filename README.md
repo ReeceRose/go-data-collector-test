@@ -17,3 +17,8 @@ Each library should have extensive support for getting basic system information 
 [gopsutil](https://github.com/shirou/gopsutil)
 
 [go-sysinfo](https://github.com/elastic/go-sysinfo)
+
+## Notes
+
+- This code is sloppy but it serves a purpose. The extra time to cleanup the code simply wasn't worth it for a project like this.
+- The data isn't one-to-one mapped so it requires a bit more investigation when trying to figure out what's supported via each library.

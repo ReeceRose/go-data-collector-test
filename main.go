@@ -15,10 +15,10 @@ type DataCollector interface {
 
 type HostInfo struct {
 	// gopsutil
-	OSInfo OS
+	OSInfo       OS
+	Users        []User
+	Temperatures []Temperature
 	// go-sysinfo
-	Users             []User
-	Temperatures      []Temperature
 	Architecture      string    `json:"architecture"`            // Hardware architecture (e.g. x86_64, arm, ppc, mips).
 	BootTime          time.Time `json:"boot_time"`               // Host boot time.
 	Containerized     *bool     `json:"containerized,omitempty"` // Is the process containerized.
