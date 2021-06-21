@@ -10,12 +10,13 @@ type DataCollector interface {
 	Disk() Disk
 }
 
-type HostInfo struct {
-	// gopsutil
-	OSInfo       OS
-	Users        []User
-	Temperatures []Temperature
-	// go-sysinfo
+type GoPSUtilHost struct {
+	GoPSUtilOS   GoPSUtilOS    `json:"osInfo"`
+	Users        []User        `json:"users"`
+	Temperatures []Temperature `json:"temperatures"`
+}
+
+type GoSysInfoHost struct {
 	Architecture      string    `json:"architecture"`            // Hardware architecture (e.g. x86_64, arm, ppc, mips).
 	BootTime          time.Time `json:"boot_time"`               // Host boot time.
 	Containerized     *bool     `json:"containerized,omitempty"` // Is the process containerized.
@@ -27,7 +28,11 @@ type HostInfo struct {
 	Timezone          string    `json:"timezone"`                // System timezone.
 	TimezoneOffsetSec int       `json:"timezone_offset_sec"`     // Timezone offset (seconds from UTC).
 	UniqueID          string    `json:"id,omitempty"`            // Unique ID of the host (optional).
+}
 
+type HostInfo struct {
+	GoPSUtilHost  GoPSUtilHost  `json:"goPSUtilHost"`
+	GoSysInfoHost GoSysInfoHost `json:"goSysInfoHost"`
 }
 
 type User struct {
@@ -45,8 +50,6 @@ type Temperature struct {
 }
 
 type SysInfoCPU struct {
-	// go-sysinfo CPUTimes struct: CPU timing status for a process
-
 	User    time.Duration `json:"user,omitempty"`
 	System  time.Duration `json:"system,omitempty"`
 	Idle    time.Duration `json:"idle,omitempty"`
@@ -57,24 +60,7 @@ type SysInfoCPU struct {
 	Steal   time.Duration `json:"steal,omitempty"`
 }
 
-type CPU struct {
-	Sysifno SysInfoCPU `json:"Sysinfo,omitempty"`
-	// gopsutil
-	CPU       string        `json:"cpu"`
-	User      float64       `json:"user"`
-	System    float64       `json:"system"`
-	Idle      float64       `json:"idle"`
-	Nice      float64       `json:"nice"`
-	Iowait    float64       `json:"iowait"`
-	Irq       float64       `json:"irq"`
-	Softirq   float64       `json:"softirq"`
-	Steal     float64       `json:"steal"`
-	Guest     float64       `json:"guest"`
-	GuestNice float64       `json:"guestNice"`
-	InfoStat  []CPUInfoStat `json:"infoStat"`
-}
-
-type CPUInfoStat struct {
+type GoPSUtilCPU struct {
 	CPU        int32    `json:"cpu"`
 	VendorID   string   `json:"vendorId"`
 	Family     string   `json:"family"`
@@ -88,6 +74,11 @@ type CPUInfoStat struct {
 	CacheSize  int32    `json:"cacheSize"`
 	Flags      []string `json:"flags"`
 	Microcode  string   `json:"microcode"`
+}
+
+type CPU struct {
+	SysInfoCPU  SysInfoCPU  `json:"sysInfoCPU"`
+	GoPSUtilCPU GoPSUtilCPU `json:"goPSUtilCPU"`
 }
 
 type SysInfoMemory struct {
@@ -168,76 +159,30 @@ type Process struct {
 
 type SysInfoProcess struct {
 	ProcessInfo ProcessInfo `json:"processInfo"`
-	MemoryInfo  MemoryInfo  `json:"memoryInfo"`
 	UserInfo    UserInfo    `json:"userInfo"`
 }
 
 type ProcessInfo struct {
 	Name      string    `json:"name"`
 	PID       int       `json:"pid"`
-	PPID      int       `json:"ppid"`
-	CWD       string    `json:"cwd"`
 	Exe       string    `json:"exe"`
-	Args      []string  `json:"args"`
 	StartTime time.Time `json:"start_time"`
-}
-
-type MemoryInfo struct {
-	Resident uint64            `json:"resident_bytes"`
-	Virtual  uint64            `json:"virtual_bytes"`
-	Metrics  map[string]uint64 `json:"raw,omitempty"` // Other memory related metrics.
+	// There are more but I've cut them out...
 }
 
 type UserInfo struct {
-	UID  string `json:"uid"`
-	EUID string `json:"euid"`
-	SUID string `json:"suid"`
-	GID  string `json:"gid"`
-	EGID string `json:"egid"`
-	SGID string `json:"sgid"`
+	UID string `json:"uid"`
+	// There are more but I've cut them out...
 }
 
 type GoPsUtilProcess struct {
 	Pid    int32 `json:"pid"`
 	name   string
 	status string
-	// Cut out to limit output
-	// parent         int32
-	// numCtxSwitches *NumCtxSwitchesStat
-	// uids           []int32
-	// gids           []int32
-	// groups         []int32
-	// numThreads     int32
-	// memInfo        *MemoryInfoStat
-	// createTime     int64
-	// tgid           int32
+	// There are more but I've cut them out...
 }
 
-type NumCtxSwitchesStat struct {
-	Voluntary   int64 `json:"voluntary"`
-	Involuntary int64 `json:"involuntary"`
-}
-
-type MemoryInfoStat struct {
-	RSS    uint64 `json:"rss"`    // bytes
-	VMS    uint64 `json:"vms"`    // bytes
-	HWM    uint64 `json:"hwm"`    // bytes
-	Data   uint64 `json:"data"`   // bytes
-	Stack  uint64 `json:"stack"`  // bytes
-	Locked uint64 `json:"locked"` // bytes
-	Swap   uint64 `json:"swap"`   // bytes
-}
-
-type SignalInfoStat struct {
-	PendingProcess uint64 `json:"pending_process"`
-	PendingThread  uint64 `json:"pending_thread"`
-	Blocked        uint64 `json:"blocked"`
-	Ignored        uint64 `json:"ignored"`
-	Caught         uint64 `json:"caught"`
-}
-
-type OS struct {
-	// gopsutil Host InfoStat (describes the host status)
+type GoPSUtilOS struct {
 	Hostname             string `json:"hostname"`
 	Uptime               uint64 `json:"uptime"`
 	BootTime             uint64 `json:"bootTime"`
@@ -250,8 +195,10 @@ type OS struct {
 	VirtualizationSystem string `json:"virtualizationSystem"`
 	VirtualizationRole   string `json:"virtualizationRole"` // guest or host
 	HostID               string `json:"hostId"`             // ex: uuid
+	Platform             string `json:"platform"`           // Platform  string // ex: ubuntu, linuxmint
+}
 
-	// go-sysinfo OSINfo
+type GoSysInfoOS struct {
 	Type     string `json:"type"`               // OS Type (one of linux, macos, unix, windows).
 	Family   string `json:"family"`             // OS Family (e.g. redhat, debian, freebsd, windows).
 	Name     string `json:"name"`               // OS Name (e.g. Mac OS X, CentOS).
@@ -261,11 +208,12 @@ type OS struct {
 	Patch    int    `json:"patch"`              // Patch release version.
 	Build    string `json:"build,omitempty"`    // Build (e.g. 16G1114).
 	Codename string `json:"codename,omitempty"` // OS codename (e.g. jessie).
+	Platform string `json:"platform"`           // Platform string // OS platform (e.g. centos, ubuntu, windows).
+}
 
-	// Duplicates
-	// Platform string // OS platform (e.g. centos, ubuntu, windows). GO-SYSINFO
-	// Platform  string // ex: ubuntu, linuxmint GOPSUTIL
-	Platform string `json:"platform"`
+type OS struct {
+	GoPPUtilOS  GoPSUtilOS  `json:"goPSUtilOS"`
+	GoSysInfoOS GoSysInfoOS `json:"goSysInfoOS"`
 }
 
 type GoPsUtilDisk struct {

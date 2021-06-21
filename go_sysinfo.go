@@ -6,17 +6,13 @@ type GoSysInfo struct {
 }
 
 func (g GoSysInfo) HostInfo() HostInfo {
-	//var hostInfo HostInfo
 	host, err := sysinfo.Host()
 	info := host.Info()
 	if err != nil {
 		panic(err)
 	}
 
-	hostInfo := HostInfo{
-		// Users: No support?
-		// Temperatures: No support?
-		// OSInfo: This is OS below
+	hostInfo := GoSysInfoHost{
 		Architecture:  info.Architecture,
 		BootTime:      info.BootTime,
 		Containerized: info.Containerized,
@@ -25,22 +21,24 @@ func (g GoSysInfo) HostInfo() HostInfo {
 		KernelVersion: info.KernelVersion,
 		MACs:          info.MACs,
 		OS: &OS{
-			Type:     info.OS.Type,
-			Family:   info.OS.Family,
-			Name:     info.OS.Name,
-			Version:  info.OS.Version,
-			Major:    info.OS.Major,
-			Minor:    info.OS.Minor,
-			Patch:    info.OS.Patch,
-			Build:    info.OS.Build,
-			Codename: info.OS.Codename,
-			Platform: info.OS.Platform,
+			GoSysInfoOS: GoSysInfoOS{
+				Type:     info.OS.Type,
+				Family:   info.OS.Family,
+				Name:     info.OS.Name,
+				Version:  info.OS.Version,
+				Major:    info.OS.Major,
+				Minor:    info.OS.Minor,
+				Patch:    info.OS.Patch,
+				Build:    info.OS.Build,
+				Codename: info.OS.Codename,
+				Platform: info.OS.Platform,
+			},
 		},
 		Timezone:          info.Timezone,
 		TimezoneOffsetSec: info.TimezoneOffsetSec,
 		UniqueID:          info.UniqueID,
 	}
-	return hostInfo
+	return HostInfo{GoSysInfoHost: hostInfo}
 }
 
 func (g GoSysInfo) CPU() CPU {
@@ -54,7 +52,7 @@ func (g GoSysInfo) CPU() CPU {
 	}
 
 	return CPU{
-		Sysifno: SysInfoCPU{
+		SysInfoCPU: SysInfoCPU{
 			User:    cpuTime.User,
 			System:  cpuTime.System,
 			Idle:    cpuTime.Idle,
@@ -91,14 +89,19 @@ func (g GoSysInfo) Processes() []Process {
 
 	for _, process := range processes {
 		processInfo, _ := process.Info()
-		memoryInfo, _ := process.Memory()
 		userInfo, _ := process.User()
 
 		hostProcesses = append(hostProcesses, Process{
 			SysInfoProcess: SysInfoProcess{
-				ProcessInfo: ProcessInfo(processInfo),
-				MemoryInfo:  MemoryInfo(memoryInfo),
-				UserInfo:    UserInfo(userInfo),
+				ProcessInfo: ProcessInfo{
+					Name:      processInfo.Name,
+					PID:       processInfo.PID,
+					Exe:       processInfo.Exe,
+					StartTime: processInfo.StartTime,
+				},
+				UserInfo: UserInfo{
+					UID: userInfo.UID,
+				},
 			},
 		})
 	}

@@ -17,7 +17,7 @@ func (g GoPSUtil) HostInfo() HostInfo {
 	if err != nil {
 		panic(err)
 	}
-	hostInfo.OSInfo = OS{
+	hostInfo.GoPSUtilHost.GoPSUtilOS = GoPSUtilOS{
 		Hostname:             host.Hostname,
 		Uptime:               host.Uptime,
 		BootTime:             host.BootTime,
@@ -63,8 +63,8 @@ func (g GoPSUtil) HostInfo() HostInfo {
 		hostTemps = append(hostTemps, tempTemp)
 	}
 
-	hostInfo.Users = hostUsers
-	hostInfo.Temperatures = hostTemps
+	hostInfo.GoPSUtilHost.Users = hostUsers
+	hostInfo.GoPSUtilHost.Temperatures = hostTemps
 	return hostInfo
 }
 
@@ -73,14 +73,8 @@ func (g GoPSUtil) CPU() CPU {
 	if err != nil {
 		panic(err)
 	}
-
-	var cpuInfoStat []CPUInfoStat
-	for _, cpu := range cpuInfo {
-		cpuInfoStat = append(cpuInfoStat, CPUInfoStat(cpu))
-	}
-
 	return CPU{
-		InfoStat: cpuInfoStat,
+		GoPSUtilCPU: GoPSUtilCPU(cpuInfo[0]),
 	}
 }
 
