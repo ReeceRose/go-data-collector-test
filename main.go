@@ -11,6 +11,7 @@ type DataCollector interface {
 	CPU() CPU
 	Memory() Memory
 	Processes() []Process
+	Disk() string //Temp
 }
 
 type HostInfo struct {
@@ -165,6 +166,78 @@ type Memory struct {
 }
 
 type Process struct {
+	SysInfoProcess  SysInfoProcess  `json:"sysInfoProcess"`
+	GoPSUtilProcess GoPsUtilProcess `json:"goPSUtilProcess"`
+}
+
+type SysInfoProcess struct {
+	ProcessInfo ProcessInfo `json:"processInfo"`
+	MemoryInfo  MemoryInfo  `json:"memoryInfo"`
+	UserInfo    UserInfo    `json:"userInfo"`
+}
+
+type ProcessInfo struct {
+	Name      string    `json:"name"`
+	PID       int       `json:"pid"`
+	PPID      int       `json:"ppid"`
+	CWD       string    `json:"cwd"`
+	Exe       string    `json:"exe"`
+	Args      []string  `json:"args"`
+	StartTime time.Time `json:"start_time"`
+}
+
+type MemoryInfo struct {
+	Resident uint64            `json:"resident_bytes"`
+	Virtual  uint64            `json:"virtual_bytes"`
+	Metrics  map[string]uint64 `json:"raw,omitempty"` // Other memory related metrics.
+}
+
+type UserInfo struct {
+	UID  string `json:"uid"`
+	EUID string `json:"euid"`
+	SUID string `json:"suid"`
+	GID  string `json:"gid"`
+	EGID string `json:"egid"`
+	SGID string `json:"sgid"`
+}
+
+type GoPsUtilProcess struct {
+	Pid    int32 `json:"pid"`
+	name   string
+	status string
+	// Cut out to limit output
+	// parent         int32
+	// numCtxSwitches *NumCtxSwitchesStat
+	// uids           []int32
+	// gids           []int32
+	// groups         []int32
+	// numThreads     int32
+	// memInfo        *MemoryInfoStat
+	// createTime     int64
+	// tgid           int32
+}
+
+type NumCtxSwitchesStat struct {
+	Voluntary   int64 `json:"voluntary"`
+	Involuntary int64 `json:"involuntary"`
+}
+
+type MemoryInfoStat struct {
+	RSS    uint64 `json:"rss"`    // bytes
+	VMS    uint64 `json:"vms"`    // bytes
+	HWM    uint64 `json:"hwm"`    // bytes
+	Data   uint64 `json:"data"`   // bytes
+	Stack  uint64 `json:"stack"`  // bytes
+	Locked uint64 `json:"locked"` // bytes
+	Swap   uint64 `json:"swap"`   // bytes
+}
+
+type SignalInfoStat struct {
+	PendingProcess uint64 `json:"pending_process"`
+	PendingThread  uint64 `json:"pending_thread"`
+	Blocked        uint64 `json:"blocked"`
+	Ignored        uint64 `json:"ignored"`
+	Caught         uint64 `json:"caught"`
 }
 
 type OS struct {
@@ -207,21 +280,27 @@ func main() {
 	hostInfo, _ := json.Marshal(collector.HostInfo())
 	cpuInfo, _ := json.Marshal(collector.CPU())
 	memoryInfo, _ := json.Marshal(collector.Memory())
+	processesInfo, _ := json.Marshal(collector.Processes())
 	fmt.Println("go-sysinfo: HOST INFORMATION")
 	fmt.Println(string(hostInfo))
 	fmt.Println("go-sysinfo: CPU INFORMATION")
 	fmt.Println(string(cpuInfo))
 	fmt.Println("go-sysinfo: MEMORY INFORMATION")
 	fmt.Println(string(memoryInfo))
+	fmt.Println("go-sysinfo: PROCESSES INFORMATION")
+	fmt.Println(string(processesInfo))
 
 	collector = GoPSUtil{}
 	hostInfo, _ = json.Marshal(collector.HostInfo())
 	cpuInfo, _ = json.Marshal(collector.CPU())
 	memoryInfo, _ = json.Marshal(collector.Memory())
+	processesInfo, _ = json.Marshal(collector.Processes())
 	fmt.Println("gopsutil: HOST INFORMATION")
 	fmt.Println(string(hostInfo))
 	fmt.Println("gopsutil: CPU INFORMATION")
 	fmt.Println(string(cpuInfo))
-	fmt.Println("gopsutil: MEMORy INFORMATION")
+	fmt.Println("gopsutil: MEMORY INFORMATION")
 	fmt.Println(string(memoryInfo))
+	fmt.Println("go-sysinfo: PROCESSES INFORMATION")
+	fmt.Println(string(processesInfo))
 }

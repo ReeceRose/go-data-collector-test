@@ -4,6 +4,7 @@ import (
 	gCPU "github.com/shirou/gopsutil/v3/cpu"
 	gHost "github.com/shirou/gopsutil/v3/host"
 	gMem "github.com/shirou/gopsutil/v3/mem"
+	gProcess "github.com/shirou/gopsutil/v3/process"
 )
 
 type GoPSUtil struct {
@@ -104,5 +105,36 @@ func (g GoPSUtil) Memory() Memory {
 }
 
 func (g GoPSUtil) Processes() []Process {
-	return []Process{}
+	processes, err := gProcess.Processes()
+	if err != nil {
+		panic(err)
+	}
+
+	var hostProcesses []Process
+
+	for _, process := range processes {
+		name, _ := process.Name()
+		status, _ := process.Status()
+		// uids, _ := process.Uids()
+		// gids, _ := process.Gids()
+		// numThreads, _ := process.NumThreads()
+		// memInfo, _ := process.MemoryInfo()
+
+		hostProcesses = append(hostProcesses, Process{
+			GoPSUtilProcess: GoPsUtilProcess{
+				Pid:    process.Pid,
+				name:   name,
+				status: status[0],
+				// uids:       uids,
+				// gids:       gids,
+				// numThreads: numThreads,
+				// memInfo:    (*MemoryInfoStat)(memInfo),
+			},
+		})
+	}
+	return hostProcesses
+}
+
+func (g GoPSUtil) Disk() string {
+	return ""
 }

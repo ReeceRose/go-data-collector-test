@@ -82,5 +82,30 @@ func (g GoSysInfo) Memory() Memory {
 }
 
 func (g GoSysInfo) Processes() []Process {
-	return []Process{}
+	processes, err := sysinfo.Processes()
+	if err != nil {
+		panic(err)
+	}
+
+	var hostProcesses []Process
+
+	for _, process := range processes {
+		processInfo, _ := process.Info()
+		memoryInfo, _ := process.Memory()
+		userInfo, _ := process.User()
+
+		hostProcesses = append(hostProcesses, Process{
+			SysInfoProcess: SysInfoProcess{
+				ProcessInfo: ProcessInfo(processInfo),
+				MemoryInfo:  MemoryInfo(memoryInfo),
+				UserInfo:    UserInfo(userInfo),
+			},
+		})
+	}
+
+	return hostProcesses
+}
+
+func (g GoSysInfo) Disk() string {
+	return ""
 }
