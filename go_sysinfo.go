@@ -106,6 +106,6 @@ func (g GoSysInfo) Processes() []Process {
 	return hostProcesses
 }
 
-func (g GoSysInfo) Disk() string {
-	return ""
+func (g GoSysInfo) Disk() Disk {
+	return Disk{}
 }

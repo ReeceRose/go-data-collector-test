@@ -11,7 +11,7 @@ type DataCollector interface {
 	CPU() CPU
 	Memory() Memory
 	Processes() []Process
-	Disk() string //Temp
+	Disk() Disk
 }
 
 type HostInfo struct {
@@ -272,6 +272,23 @@ type OS struct {
 	Platform string `json:"platform"`
 }
 
+type GoPsUtilDisk struct {
+	Path              string  `json:"path"`
+	Fstype            string  `json:"fstype"`
+	Total             uint64  `json:"total"`
+	Free              uint64  `json:"free"`
+	Used              uint64  `json:"used"`
+	UsedPercent       float64 `json:"usedPercent"`
+	InodesTotal       uint64  `json:"inodesTotal"`
+	InodesUsed        uint64  `json:"inodesUsed"`
+	InodesFree        uint64  `json:"inodesFree"`
+	InodesUsedPercent float64 `json:"inodesUsedPercent"`
+}
+
+type Disk struct {
+	GoPsUtilDisk GoPsUtilDisk `json:"goPSUtilDisk"`
+}
+
 func main() {
 	fmt.Println("Go System Information Data Collector Test")
 	var collector DataCollector
@@ -281,6 +298,7 @@ func main() {
 	cpuInfo, _ := json.Marshal(collector.CPU())
 	memoryInfo, _ := json.Marshal(collector.Memory())
 	processesInfo, _ := json.Marshal(collector.Processes())
+	diskInfo, _ := json.Marshal(collector.Disk())
 	fmt.Println("go-sysinfo: HOST INFORMATION")
 	fmt.Println(string(hostInfo))
 	fmt.Println("go-sysinfo: CPU INFORMATION")
@@ -289,12 +307,15 @@ func main() {
 	fmt.Println(string(memoryInfo))
 	fmt.Println("go-sysinfo: PROCESSES INFORMATION")
 	fmt.Println(string(processesInfo))
+	fmt.Println("go-sysinfo: DISK INFORMATION")
+	fmt.Println(string(diskInfo))
 
 	collector = GoPSUtil{}
 	hostInfo, _ = json.Marshal(collector.HostInfo())
 	cpuInfo, _ = json.Marshal(collector.CPU())
 	memoryInfo, _ = json.Marshal(collector.Memory())
 	processesInfo, _ = json.Marshal(collector.Processes())
+	diskInfo, _ = json.Marshal(collector.Disk())
 	fmt.Println("gopsutil: HOST INFORMATION")
 	fmt.Println(string(hostInfo))
 	fmt.Println("gopsutil: CPU INFORMATION")
@@ -303,4 +324,6 @@ func main() {
 	fmt.Println(string(memoryInfo))
 	fmt.Println("go-sysinfo: PROCESSES INFORMATION")
 	fmt.Println(string(processesInfo))
+	fmt.Println("go-sysinfo: DISK INFORMATION")
+	fmt.Println(string(diskInfo))
 }
